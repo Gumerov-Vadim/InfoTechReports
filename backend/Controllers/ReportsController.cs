@@ -100,9 +100,13 @@ public class ReportsController : ControllerBase
     [HttpGet("generate-report")]
     public async Task<IActionResult> GenerateReport([FromQuery] DateTime startDate, [FromQuery] DateTime endDate)
     {
+        // Преобразуем даты в UTC
+        var utcStartDate = DateTime.SpecifyKind(startDate, DateTimeKind.Utc);
+        var utcEndDate = DateTime.SpecifyKind(endDate, DateTimeKind.Utc);
+
         // Получаем данные за указанный период
         var reports = await _context.Reports
-            .Where(r => r.ApplicationDate >= startDate && r.ApplicationDate <= endDate)
+            .Where(r => r.ApplicationDate >= utcStartDate && r.ApplicationDate <= utcEndDate)
             .ToListAsync();
 
         // Группируем данные по типу нарушения и результату проверки
@@ -118,7 +122,7 @@ public class ReportsController : ControllerBase
             .ToList();
 
         // Создаем документ Word
-        using var memoryStream = new MemoryStream();
+        var memoryStream = new MemoryStream();
         using (var document = WordprocessingDocument.Create(memoryStream, WordprocessingDocumentType.Document))
         {
             var mainPart = document.AddMainDocumentPart();
@@ -127,7 +131,7 @@ public class ReportsController : ControllerBase
 
             // Добавляем заголовок
             var title = body.AppendChild(new Paragraph());
-            title.AppendChild(new Run(new Text($"Отчет по обращениям за период с {startDate:dd.MM.yyyy} по {endDate:dd.MM.yyyy}")));
+            title.AppendChild(new Run(new Text($"Сформированный отчет по нарушениям с {startDate:dd.MM.yyyy} по {endDate:dd.MM.yyyy}")));
             title.ParagraphProperties = new ParagraphProperties(new Justification() { Val = JustificationValues.Center });
             body.AppendChild(new Paragraph(new Run(new Text(""))));
 
@@ -147,7 +151,7 @@ public class ReportsController : ControllerBase
 
             // Добавляем заголовки таблицы
             var headerRow = new TableRow();
-            headerRow.AppendChild(new TableCell(new Paragraph(new Run(new Text("Тип нарушения")))));
+            headerRow.AppendChild(new TableCell(new Paragraph(new Run(new Text("")))));
             headerRow.AppendChild(new TableCell(new Paragraph(new Run(new Text("Выявлено")))));
             headerRow.AppendChild(new TableCell(new Paragraph(new Run(new Text("Не выявлено")))));
             table.AppendChild(headerRow);
