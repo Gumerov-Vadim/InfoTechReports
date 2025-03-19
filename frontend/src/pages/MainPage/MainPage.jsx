@@ -1,5 +1,8 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
+import Container from '../../components/Container/Container';
+import styles from './MainPage.module.css';
+import ReportsTable from '../../components/ReportsTable/ReportsTable';
 
 const MainPage = () => {
     const navigate = useNavigate();
@@ -10,10 +13,10 @@ const MainPage = () => {
     };
 
     return (
-        <div className="main-page">
-            <h1>Главная страница</h1>
-            <button onClick={handleLogout}>Выйти</button>
-            {/* Здесь будет основной контент приложения */}
+        <div className={styles.mainPage}>
+            <main className={styles.content}>
+                <ReportsTable />
+            </main>
         </div>
     );
 };
