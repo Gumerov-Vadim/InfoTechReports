@@ -10,6 +10,18 @@ import axiosInstance from './axiosInstance';
  */
 
 /**
+ * Обработка ошибок API
+ * @param {Error} error - Ошибка
+ * @returns {Error} Обработанная ошибка
+ */
+const handleApiError = (error) => {
+    if (error.response?.status === 403) {
+        return new Error('403');
+    }
+    return new Error(error.response?.data || 'Произошла ошибка при выполнении запроса');
+};
+
+/**
  * Получение списка всех отчетов
  * @returns {Promise<Report[]>} - Список отчетов
  */
@@ -18,7 +30,7 @@ export const getReports = async () => {
         const response = await axiosInstance.get('/api/reports');
         return response.data;
     } catch (error) {
-        throw new Error(error.response?.data || 'Ошибка при получении списка отчетов');
+        throw handleApiError(error);
     }
 };
 
@@ -32,7 +44,7 @@ export const getReport = async (id) => {
         const response = await axiosInstance.get(`/api/reports/${id}`);
         return response.data;
     } catch (error) {
-        throw new Error(error.response?.data || 'Ошибка при получении отчета');
+        throw handleApiError(error);
     }
 };
 
@@ -46,7 +58,7 @@ export const createReport = async (reportData) => {
         const response = await axiosInstance.post('/api/reports', reportData);
         return response.data;
     } catch (error) {
-        throw new Error(error.response?.data || 'Ошибка при создании отчета');
+        throw handleApiError(error);
     }
 };
 
@@ -61,7 +73,7 @@ export const updateInspectionResult = async (id, newResult) => {
         const response = await axiosInstance.put(`/api/reports/${id}/inspection-result`, newResult);
         return response.data;
     } catch (error) {
-        throw new Error(error.response?.data || 'Ошибка при обновлении результата проверки');
+        throw handleApiError(error);
     }
 };
 
@@ -74,7 +86,7 @@ export const deleteReport = async (id) => {
     try {
         await axiosInstance.delete(`/api/reports/${id}`);
     } catch (error) {
-        throw new Error(error.response?.data || 'Ошибка при удалении отчета');
+        throw handleApiError(error);
     }
 };
 
@@ -112,6 +124,6 @@ export const generateReport = async (startDate, endDate) => {
         
         return response.data;
     } catch (error) {
-        throw new Error(error.message || 'Ошибка при генерации отчета');
+        throw handleApiError(error);
     }
 }; 

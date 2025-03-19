@@ -2,16 +2,15 @@ import React, { useState, useEffect } from 'react';
 import { getReports, updateInspectionResult, generateReport } from '../../api/reports';
 import styles from './ReportsTable.module.css';
 import ReportModal from '../ReportModal/ReportModal';
+import { useAuth } from '../../context/AuthContext';
 
 const ReportsTable = () => {
-
+    const { userRole } = useAuth();
     const [selectedReports, setSelectedReports] = useState([]);
-
     const [reports, setReports] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
-
 
     const handleReportClick = (element) => { 
         const reportId = +element.target.closest('tr').dataset.id;
@@ -21,6 +20,7 @@ const ReportsTable = () => {
             setSelectedReports((prev) => [...prev, reportId]);
         }
     };
+
     const inseptionButtonHandler = async () => {
         try {
             await Promise.all(selectedReports.map(async (reportId) => {
@@ -30,9 +30,15 @@ const ReportsTable = () => {
             }));
             await fetchReports();
         } catch (error) {
-            console.error('Ошибка при обновлении отчета:', error);
+            if (error.message.includes('403')) {
+                setError('У вас нет прав для выполнения этого действия');
+            } else {
+                console.error('Ошибка при обновлении отчета:', error);
+                setError('Ошибка при обновлении отчета');
+            }
         }
     }
+
     const nonInspectionButtonHandler = async () => {
         try {
             await Promise.all(selectedReports.map(async (reportId) => {
@@ -42,7 +48,12 @@ const ReportsTable = () => {
             }));
             await fetchReports();
         } catch (error) {
-            console.error('Ошибка при обновлении отчета:', error);
+            if (error.message.includes('403')) {
+                setError('У вас нет прав для выполнения этого действия');
+            } else {
+                console.error('Ошибка при обновлении отчета:', error);
+                setError('Ошибка при обновлении отчета');
+            }
         }
     }
 
@@ -51,6 +62,7 @@ const ReportsTable = () => {
             setLoading(true);
             const data = await getReports();
             setReports(data);
+            setError(null);
         } catch (err) {
             setError(err.message);
         } finally {
@@ -68,7 +80,12 @@ const ReportsTable = () => {
             
             await generateReport(startDate, endDate);
         } catch (error) {
-            console.error('Ошибка при формировании отчета:', error);
+            if (error.message.includes('403')) {
+                setError('У вас нет прав для формирования отчета');
+            } else {
+                console.error('Ошибка при формировании отчета:', error);
+                setError('Ошибка при формировании отчета');
+            }
         }
     };
 
@@ -86,7 +103,6 @@ const ReportsTable = () => {
 
     return (
         <div className={styles.tableContainer}>
-            
             {reports.length > 0 ? (<>
             <div className={styles.tableHeader}>
                 <h2>Список обращений</h2>
@@ -97,20 +113,21 @@ const ReportsTable = () => {
                     >
                         <span>Сформировать отчет</span>
                     </button>
-                        <button
+                    <button
                         className={`${styles.tableHeaderButton} ${styles.inspection}`}
                         onClick={inseptionButtonHandler}
-                        >
-                            <span>➕</span>
-                        </button>
-                        <button
+                    >
+                        <span>➕</span>
+                    </button>
+                    <button
                         className={`${styles.tableHeaderButton} ${styles.nonInspection}`}
                         onClick={nonInspectionButtonHandler}
-                        >
-                            <span>➖</span>
-                        </button>
+                    >
+                        <span>➖</span>
+                    </button>
                 </div>
-            </div><table className={styles.table}>
+            </div>
+            <table className={styles.table}>
                 <thead>
                     <tr>
                         <th>ID</th>

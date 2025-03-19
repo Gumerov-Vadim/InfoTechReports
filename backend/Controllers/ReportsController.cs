@@ -6,11 +6,14 @@ using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Wordprocessing;
 using System.Text;
+using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
 namespace backend.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[Authorize]
 public class ReportsController : ControllerBase
 {
     private readonly ApplicationDbContext _context;
@@ -21,11 +24,23 @@ public class ReportsController : ControllerBase
         _context = context;
     }
 
+    private UserRole GetCurrentUserRole()
+    {
+        var roleClaim = User.FindFirst(ClaimTypes.Role);
+        return roleClaim != null ? Enum.Parse<UserRole>(roleClaim.Value) : UserRole.User;
+    }
+
     // GET: api/reports
     [HttpGet]
     public async Task<ActionResult<IEnumerable<Report>>> GetReports()
     {
-        return await _context.Reports.ToListAsync();
+        var userRole = GetCurrentUserRole();
+        var reports = await _context.Reports.ToListAsync();
+        
+        // Фильтруем отчеты в зависимости от роли пользователя
+        var filteredReports = reports.Where(r => ReportAccessAttribute.HasAccessToReport(userRole, r.ViolationType));
+        
+        return Ok(filteredReports);
     }
 
     // GET: api/reports/5
@@ -37,6 +52,13 @@ public class ReportsController : ControllerBase
         {
             return NotFound();
         }
+
+        var userRole = GetCurrentUserRole();
+        if (!ReportAccessAttribute.HasAccessToReport(userRole, report.ViolationType))
+        {
+            return Forbid();
+        }
+
         return report;
     }
 
@@ -51,12 +73,18 @@ public class ReportsController : ControllerBase
 
         try
         {
-            await _semaphore.WaitAsync(); // Обеспечиваем потокобезопасность
+            await _semaphore.WaitAsync();
 
             var report = await _context.Reports.FindAsync(id);
             if (report == null)
             {
                 return NotFound();
+            }
+
+            var userRole = GetCurrentUserRole();
+            if (!ReportAccessAttribute.HasAccessToReport(userRole, report.ViolationType))
+            {
+                return Forbid();
             }
 
             report.InspectionResult = newResult;
@@ -78,6 +106,12 @@ public class ReportsController : ControllerBase
             return BadRequest("Недопустимое значение результата проверки. Допустимые значения: 'Выявлено' или 'Не выявлено'");
         }
 
+        var userRole = GetCurrentUserRole();
+        if (!ReportAccessAttribute.HasAccessToReport(userRole, report.ViolationType))
+        {
+            return Forbid();
+        }
+
         _context.Reports.Add(report);
         await _context.SaveChangesAsync();
 
@@ -91,6 +125,12 @@ public class ReportsController : ControllerBase
         if (report == null)
             return NotFound();
 
+        var userRole = GetCurrentUserRole();
+        if (!ReportAccessAttribute.HasAccessToReport(userRole, report.ViolationType))
+        {
+            return Forbid();
+        }
+
         _context.Reports.Remove(report);
         await _context.SaveChangesAsync();
 
@@ -100,6 +140,8 @@ public class ReportsController : ControllerBase
     [HttpGet("generate-report")]
     public async Task<IActionResult> GenerateReport([FromQuery] DateTime startDate, [FromQuery] DateTime endDate)
     {
+        var userRole = GetCurrentUserRole();
+        
         // Преобразуем даты в UTC
         var utcStartDate = DateTime.SpecifyKind(startDate, DateTimeKind.Utc);
         var utcEndDate = DateTime.SpecifyKind(endDate, DateTimeKind.Utc);
@@ -108,6 +150,9 @@ public class ReportsController : ControllerBase
         var reports = await _context.Reports
             .Where(r => r.ApplicationDate >= utcStartDate && r.ApplicationDate <= utcEndDate)
             .ToListAsync();
+
+        // Фильтруем отчеты в зависимости от роли пользователя
+        reports = reports.Where(r => ReportAccessAttribute.HasAccessToReport(userRole, r.ViolationType)).ToList();
 
         // Группируем данные по типу нарушения и результату проверки
         var reportData = reports
