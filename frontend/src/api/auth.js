@@ -54,7 +54,6 @@ export const register = async (userData) => {
 export const logout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('userRole');
-    window.location.href = '/login';
 };
 
 /**
