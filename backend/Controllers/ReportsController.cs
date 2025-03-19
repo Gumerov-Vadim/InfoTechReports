@@ -111,7 +111,7 @@ public class ReportsController : ControllerBase
 
         // Группируем данные по типу нарушения и результату проверки
         var reportData = reports
-            .GroupBy(r => r.ViolationType)
+            .GroupBy(r => r.ViolationType.ToString())
             .Select(g => new
             {
                 ViolationType = g.Key,
@@ -160,7 +160,7 @@ public class ReportsController : ControllerBase
             foreach (var row in reportData)
             {
                 var dataRow = new TableRow();
-                dataRow.AppendChild(new TableCell(new Paragraph(new Run(new Text(row.ViolationType.ToString())))));
+                dataRow.AppendChild(new TableCell(new Paragraph(new Run(new Text(row.ViolationType)))));
                 dataRow.AppendChild(new TableCell(new Paragraph(new Run(new Text(row.Found.ToString())))));
                 dataRow.AppendChild(new TableCell(new Paragraph(new Run(new Text(row.NotFound.ToString())))));
                 table.AppendChild(dataRow);

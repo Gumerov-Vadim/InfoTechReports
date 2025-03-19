@@ -94,6 +94,12 @@ export const generateReport = async (startDate, endDate) => {
             responseType: 'blob'
         });
         
+        // Проверяем, является ли ответ ошибкой
+        if (response.data instanceof Blob && response.data.type === 'application/json') {
+            const errorText = await response.data.text();
+            throw new Error(errorText || 'Ошибка при генерации отчета');
+        }
+        
         // Создаем URL для скачивания файла
         const url = window.URL.createObjectURL(new Blob([response.data]));
         const link = document.createElement('a');
@@ -106,6 +112,6 @@ export const generateReport = async (startDate, endDate) => {
         
         return response.data;
     } catch (error) {
-        throw new Error(error.response?.data || 'Ошибка при генерации отчета');
+        throw new Error(error.message || 'Ошибка при генерации отчета');
     }
 }; 

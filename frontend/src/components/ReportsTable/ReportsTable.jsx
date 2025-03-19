@@ -60,9 +60,13 @@ const ReportsTable = () => {
 
     const handleGenerateReport = async (dateRange) => {
         try {
-            await generateReport(dateRange.startDate, dateRange.endDate);
-            // Здесь можно добавить обработку успешного формирования отчета
-            console.log('Отчет успешно сформирован');
+            const startDate = new Date(dateRange.startDate);
+            const endDate = new Date(dateRange.endDate);
+            
+            // Устанавливаем время на конец дня для endDate
+            endDate.setHours(23, 59, 59, 999);
+            
+            await generateReport(startDate, endDate);
         } catch (error) {
             console.error('Ошибка при формировании отчета:', error);
         }
