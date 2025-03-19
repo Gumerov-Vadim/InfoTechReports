@@ -1,0 +1,89 @@
+.modalOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modalContent {
+    background: var(--high-light-color);
+    padding: 2rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 400px;
+}
+
+.modalContent h2 {
+    margin: 0 0 1.5rem 0;
+    color: var(--text-color);
+}
+
+.formGroup {
+    margin-bottom: 1rem;
+}
+
+.formGroup label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: var(--text-color);
+}
+
+.formGroup input {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    font-size: 1rem;
+    background-color: var(--high-light-color);
+    color: var(--text-color);
+}
+
+.formGroup input:focus {
+    outline: none;
+    border-color: var(--accent-color);
+}
+
+.modalButtons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    margin-top: 1.5rem;
+}
+
+.submitButton {
+    padding: 0.5rem 1rem;
+    background-color: var(--accent-color);
+    color: var(--inspection-color);
+    border: 2px solid var(--inspection-color);
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background-color 0.2s;
+}
+
+.submitButton:hover {
+    background-color: var(--inspection-color);
+    color: var(--high-light-color);
+}
+
+.cancelButton {
+    padding: 0.5rem 1rem;
+    background-color: var(--text-color);
+    color: var(--high-light-color);
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background-color 0.2s;
+}
+
+.cancelButton:hover {
+    background-color: var(--primary-color);
+} 

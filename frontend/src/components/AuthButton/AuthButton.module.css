@@ -1,0 +1,28 @@
+.authButton{
+    color: var(--text-color);
+    background-color: var(--high-light-color);
+    border: none;
+    border-radius: 5px;
+    padding: 10px 20px;
+    cursor: pointer;
+    border-radius: 10px;
+    margin-right: 6rem;
+    box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);
+}
+
+.authButton:hover{
+    background-color: var(--light-color);
+}
+@media (max-width: 640px) {
+    .authButton {
+        margin-right: 1rem;
+        padding: 0.5rem 1rem;
+    }
+}
+@media (max-width: 480px) {
+    .authButton {
+        margin-right: 0.25rem;
+        padding: 0.25rem 0.5rem;
+    }
+}
+

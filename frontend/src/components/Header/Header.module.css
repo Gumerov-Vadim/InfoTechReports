@@ -1,0 +1,28 @@
+.header{
+    height: var(--header-height);
+    background-color: var(--bg-color);
+    box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);
+    flex-grow: 1;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+}
+@media (max-width: 640px) {
+    .header {
+        height: 3rem;
+    }
+    .header h1 {
+        font-size: 1.5rem;
+    }
+    .logoutButton {
+        padding: 0.5rem 1rem;
+    }
+}
+.headerTitle{
+    color: var(--whale-color);
+}
