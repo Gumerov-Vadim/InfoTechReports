@@ -4,6 +4,7 @@ import { AuthProvider } from './context/AuthContext';
 import AuthPage from './pages/AuthPage/AuthPage';
 import MainPage from './pages/MainPage/MainPage';
 import Header from './components/Header/Header';
+import ProtectedRoute from './components/ProtectedRoute/ProtectedRoute';
 
 const App = () => {
 
@@ -25,7 +26,15 @@ const App = () => {
                     <Header />
                     <Routes>
                         <Route style={pageStyle} path="/auth" element={<AuthPage />} />
-                        <Route style={pageStyle} path="/" element={<MainPage />} />
+                        <Route 
+                            style={pageStyle} 
+                            path="/" 
+                            element={
+                                <ProtectedRoute>
+                                    <MainPage />
+                                </ProtectedRoute>
+                            } 
+                        />
                     </Routes>
                 </div>
             </Router>
