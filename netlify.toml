@@ -1,0 +1,15 @@
+[build]
+  base = "frontend"
+  command = "npm run build"
+  publish = "build"
+
+[build.environment]
+  NODE_VERSION = "18"
+
+[context.production.environment]
+  VITE_API_URL = "https://your-backend-url.com"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
