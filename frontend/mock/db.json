@@ -199,6 +199,20 @@
       "inspectionResult": "Не выявлено",
       "applicationDate": "2025-05-30T13:30:00.000Z",
       "status": "Завершено"
+    },
+    {
+      "id": 13,
+      "violationType": 2,
+      "inspectionResult": "Выявлено",
+      "applicationDate": "2025-06-01T11:45:00.000Z",
+      "status": "Завершено"
+    },
+    {
+      "id": 14,
+      "violationType": 1,
+      "inspectionResult": "Не выявлено",
+      "applicationDate": "2025-06-05T14:20:00.000Z",
+      "status": "Завершено"
     }
   ]
 }
