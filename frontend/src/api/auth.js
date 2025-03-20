@@ -27,7 +27,12 @@ export const login = async (credentials) => {
         localStorage.setItem('userRole', role);
         return response.data;
     } catch (error) {
-        throw new Error(error.response?.data || 'Ошибка при входе в систему');
+        console.error('Ошибка авторизации:', error);
+        if (error.response && error.response.data && error.response.data.error) {
+            throw new Error(error.response.data.error);
+        } else {
+            throw new Error('Ошибка при входе в систему');
+        }
     }
 };
 
@@ -44,7 +49,12 @@ export const register = async (userData) => {
         localStorage.setItem('userRole', role);
         return response.data;
     } catch (error) {
-        throw new Error(error.response?.data || 'Ошибка при регистрации');
+        console.error('Ошибка регистрации:', error);
+        if (error.response && error.response.data && error.response.data.error) {
+            throw new Error(error.response.data.error);
+        } else {
+            throw new Error('Ошибка при регистрации');
+        }
     }
 };
 

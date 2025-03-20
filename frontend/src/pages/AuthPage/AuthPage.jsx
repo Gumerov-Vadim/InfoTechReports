@@ -11,10 +11,12 @@ const AuthPage = () => {
         username: '',
         password: ''
     });
+    const [localError, setLocalError] = useState('');
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
+            setLocalError('');
             if (isLogin) {
                 await login(formData.username, formData.password);
             } else {
@@ -24,6 +26,7 @@ const AuthPage = () => {
         } catch (err) {
             // Очищаем пароль при ошибке
             setFormData(prev => ({ ...prev, password: '' }));
+            setLocalError(err.message || 'Произошла ошибка при авторизации');
             console.error('Auth error:', err);
         }
     };
@@ -39,19 +42,30 @@ const AuthPage = () => {
     const handleSwitchMode = () => {
         setIsLogin(!isLogin);
         setFormData({ username: '', password: '' });
+        setLocalError('');
     };
+
+    // Функция для перевода ошибок
+    const translateError = (errorMessage) => {
+        if (errorMessage.includes('Неверное имя пользователя или пароль')) 
+            return 'Неверное имя пользователя или пароль';
+        if (errorMessage.includes('Пользователь с таким именем уже существует')) 
+            return 'Пользователь с таким именем уже существует';
+        if (errorMessage.includes('Необходимо указать имя пользователя и пароль')) 
+            return 'Необходимо указать имя пользователя и пароль';
+        return errorMessage || 'Произошла ошибка при авторизации';
+    };
+
+    // Показываем локальную ошибку или ошибку из контекста
+    const displayError = localError || error;
 
     return (
         <div className={styles.authPage}>
             <div className={styles.authForm}>
                 <h1>{isLogin ? 'Вход' : 'Регистрация'}</h1>
-                {error && (
+                {displayError && (
                     <div className={styles.error}>
-                        {error === 'Invalid username or password' 
-                            ? 'Неверное имя пользователя или пароль'
-                            : error === 'Username already exists'
-                            ? 'Пользователь с таким именем уже существует'
-                            : 'Произошла ошибка при авторизации'}
+                        {translateError(displayError)}
                     </div>
                 )}
                 <form onSubmit={handleSubmit}>

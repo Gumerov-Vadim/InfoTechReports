@@ -15,10 +15,24 @@ import axiosInstance from './axiosInstance';
  * @returns {Error} Обработанная ошибка
  */
 const handleApiError = (error) => {
+    console.error('API ошибка:', error);
     if (error.response?.status === 403) {
         return new Error('403');
     }
-    return new Error(error.response?.data || 'Произошла ошибка при выполнении запроса');
+    return new Error(error.response?.data?.error || error.message || 'Произошла ошибка при выполнении запроса');
+};
+
+/**
+ * Получение типов нарушений
+ * @returns {Promise<Array>} - Список типов нарушений
+ */
+export const getViolationTypes = async () => {
+    try {
+        const response = await axiosInstance.get('/api/violation-types');
+        return response.data;
+    } catch (error) {
+        throw handleApiError(error);
+    }
 };
 
 /**
@@ -70,7 +84,10 @@ export const createReport = async (reportData) => {
  */
 export const updateInspectionResult = async (id, newResult) => {
     try {
-        const response = await axiosInstance.put(`/api/reports/${id}/inspection-result`, newResult);
+        // Отправляем данные как JSON-объект с полем result
+        const response = await axiosInstance.put(`/api/reports/${id}/inspection-result`, { 
+            result: newResult 
+        });
         return response.data;
     } catch (error) {
         throw handleApiError(error);

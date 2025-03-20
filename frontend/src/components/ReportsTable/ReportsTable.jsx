@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { getReports, updateInspectionResult, generateReport } from '../../api/reports';
+import { getViolationTypes } from '../../api/reports';
 import styles from './ReportsTable.module.css';
 import ReportModal from '../ReportModal/ReportModal';
 import { useAuth } from '../../context/AuthContext';
@@ -8,6 +9,7 @@ const ReportsTable = () => {
     const { userRole } = useAuth();
     const [selectedReports, setSelectedReports] = useState([]);
     const [reports, setReports] = useState([]);
+    const [violationTypes, setViolationTypes] = useState({});
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -21,6 +23,32 @@ const ReportsTable = () => {
         }
     };
 
+    const fetchData = async () => {
+        try {
+            setLoading(true);
+            // Параллельно получаем отчеты и типы нарушений
+            const [reportsData, typesData] = await Promise.all([
+                getReports(),
+                getViolationTypes()
+            ]);
+            
+            // Преобразуем массив типов в объект для быстрого доступа
+            const typesMap = {};
+            typesData.forEach(type => {
+                typesMap[type.id] = type.name;
+            });
+            
+            setViolationTypes(typesMap);
+            setReports(reportsData);
+            setError(null);
+        } catch (err) {
+            console.error('Ошибка при загрузке данных:', err);
+            setError(err.message);
+        } finally {
+            setLoading(false);
+        }
+    };
+
     const inseptionButtonHandler = async () => {
         try {
             await Promise.all(selectedReports.map(async (reportId) => {
@@ -28,13 +56,13 @@ const ReportsTable = () => {
                 if (report.inspectionResult === 'Выявлено') return;
                 await updateInspectionResult(reportId, 'Выявлено');
             }));
-            await fetchReports();
+            await fetchData();
         } catch (error) {
+            console.error('Ошибка при обновлении отчета:', error);
             if (error.message.includes('403')) {
                 setError('У вас нет прав для выполнения этого действия');
             } else {
-                console.error('Ошибка при обновлении отчета:', error);
-                setError('Ошибка при обновлении отчета');
+                setError('Ошибка при обновлении отчета: ' + error.message);
             }
         }
     }
@@ -46,29 +74,16 @@ const ReportsTable = () => {
                 if (report.inspectionResult === 'Не выявлено') return;
                 await updateInspectionResult(reportId, 'Не выявлено');
             }));
-            await fetchReports();
+            await fetchData();
         } catch (error) {
+            console.error('Ошибка при обновлении отчета:', error);
             if (error.message.includes('403')) {
                 setError('У вас нет прав для выполнения этого действия');
             } else {
-                console.error('Ошибка при обновлении отчета:', error);
-                setError('Ошибка при обновлении отчета');
+                setError('Ошибка при обновлении отчета: ' + error.message);
             }
         }
     }
-
-    const fetchReports = async () => {
-        try {
-            setLoading(true);
-            const data = await getReports();
-            setReports(data);
-            setError(null);
-        } catch (err) {
-            setError(err.message);
-        } finally {
-            setLoading(false);
-        }
-    };
 
     const handleGenerateReport = async (dateRange) => {
         try {
@@ -90,7 +105,7 @@ const ReportsTable = () => {
     };
 
     useEffect(() => {
-        fetchReports();
+        fetchData();
     }, []);
 
     if (loading) {
@@ -116,12 +131,14 @@ const ReportsTable = () => {
                     <button
                         className={`${styles.tableHeaderButton} ${styles.inspection}`}
                         onClick={inseptionButtonHandler}
+                        disabled={selectedReports.length === 0}
                     >
                         <span>➕</span>
                     </button>
                     <button
                         className={`${styles.tableHeaderButton} ${styles.nonInspection}`}
                         onClick={nonInspectionButtonHandler}
+                        disabled={selectedReports.length === 0}
                     >
                         <span>➖</span>
                     </button>
@@ -145,7 +162,7 @@ const ReportsTable = () => {
                         data-id={report.id}
                         className={selectedReports.includes(report.id) ? styles.selected : ''}>
                             <td>{report.id}</td>
-                            <td>{report.violationType}</td>
+                            <td>{violationTypes[report.violationType] || `Тип ${report.violationType}`}</td>
                             <td>{report.inspectionResult}</td>
                             <td>{new Date(report.applicationDate).toLocaleDateString()}</td>
                         </tr>

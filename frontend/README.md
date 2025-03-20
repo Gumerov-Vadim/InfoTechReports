@@ -1,12 +1,53 @@
-# React + Vite
+# InfoTechReports Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Клиентская часть приложения InfoTechReports для отслеживания технических проверок и нарушений.
 
-Currently, two official plugins are available:
+## Разработка
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+### Установка зависимостей
 
-## Expanding the ESLint configuration
+```bash
+npm install
+```
 
-If you are developing a production application, we recommend using TypeScript and enable type-aware lint rules. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+### Запуск приложения в режиме разработки
+
+```bash
+# Только фронтенд (требуется настоящий API)
+npm run dev
+
+# Фронтенд + моковый API
+npm run dev:mock
+```
+
+### Сборка для продакшена
+
+```bash
+npm run build
+```
+
+## Моковый API
+
+Для разработки и тестирования без настоящего бэкенда используется моковый API на базе json-server.
+
+### Данные для входа
+
+- Администратор: username: `admin`, password: `admin123`
+- Пользователь: username: `user`, password: `user123`
+
+### Доступные эндпоинты
+
+- `POST /api/auth/login` - Авторизация
+- `POST /api/auth/register` - Регистрация
+- `GET /api/reports` - Получение списка отчетов
+- `GET /api/reports/:id` - Получение отчета по ID
+- `POST /api/reports` - Создание отчета
+- `PUT /api/reports/:id/inspection-result` - Обновление результата проверки
+- `DELETE /api/reports/:id` - Удаление отчета
+- `GET /api/reports/generate-report` - Генерация отчета за период
+
+### Запуск только мокового API
+
+```bash
+npm run mock-api
+```

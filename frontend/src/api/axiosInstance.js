@@ -1,5 +1,4 @@
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
 
 const axiosInstance = axios.create({
     baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5119',
@@ -12,8 +11,15 @@ const axiosInstance = axios.create({
 axiosInstance.interceptors.request.use(
     (config) => {
         const token = localStorage.getItem('token');
+        const userRole = localStorage.getItem('userRole');
+        
         if (token) {
             config.headers.Authorization = `Bearer ${token}`;
+            
+            // Добавляем роль пользователя в заголовок для мокового API
+            if (userRole) {
+                config.headers['X-User-Role'] = userRole;
+            }
         }
         return config;
     },
